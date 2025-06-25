@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:URLHandlerWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="104.451" Width="156.021" Opacity="0.2" AllowsTransparency="True" WindowStyle="None" Background="#01777777" WindowStartupLocation="CenterScreen" Topmost="True" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="MainWindow" Height="104.451" Width="156.021" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="CenterScreen" Topmost="True" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Window.Background>
+        <SolidColorBrush Opacity="0.5" Color="#01555555"/>
+    </Window.Background>
     <Window.Resources>
         <Style x:Key="NoMouseOverButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="SnapsToDevicePixels" Value="true" />
@@ -66,6 +69,17 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        
+        <Button Name="Setup" Width="140" Height="60" Content="" Foreground="White" FontSize="12" Margin="15,15,9,0" RenderTransformOrigin="0.5,0.5" Style="{DynamicResource Trigger-Enlarge}" Click="Setup_Click" PreviewMouseRightButtonDown="FF_PreviewMouseRightButtonDown" Visibility="Hidden">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <StackPanel Orientation="Horizontal" Background="#88444444">
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <local:AutoGreyableImage x:Name="UACShield" Source="UAC-Shield.png" Margin="2,0,0,0" Opacity="0.8" Width="24" Height="24" Stretch="Fill" SnapsToDevicePixels="False">
+                        </local:AutoGreyableImage>
+                        <TextBlock x:Name="SetupInfo" Margin="5,20,0,00" FontSize="11" Width="100">Register as Browser</TextBlock>
+                    </StackPanel>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
     </Grid>
 </Window>

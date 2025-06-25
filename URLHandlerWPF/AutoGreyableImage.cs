@@ -96,13 +96,12 @@ namespace URLHandlerWPF
                         return;
                     }
 
-                    // Reset the Opcity Mask
+                    // Reset the Opacity Mask
                     autoGreyScaleImg.OpacityMask = null;
                 }
             }
             catch (Exception)
             {
-                // nothin'
             }
 
         }
