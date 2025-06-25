@@ -10,8 +10,9 @@ Features:
 1) Uses WPF framework, which in return for making me pull my hair out wrestling with XAML, has made the UI a little slicker and more modern, with zoom/fade effects etc.
 2) Can be cancelled by right-clicking either button if you decide you don't, in fact, want to open the clicked URL.
 3) If no URL is passed to it (e.g. "URLHandlerWPF https://www.github.com") it grays out both buttons, and exits after two seconds.
-
+4) can now be registered as a browser (run it without passing it a URL; if it's not running with UAC elevated permissions it'll ask to restart)
+5) 
 Still not implemented:
-1) no mechanism to register it as a browser in Windows. Can only be done at present with Registry hackery.
+1) ~~no mechanism to register it as a browser in Windows. Can only be done at present with Registry hackery.~~
 2) Hard-coded to Firefox x64 and Edge (Chromium). No mechanism to select another browser.
 3) Minimal UI. Practically no UI, in fact. It's a browser chooser; what do you want, 4K video?
