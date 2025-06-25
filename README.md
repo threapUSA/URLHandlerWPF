@@ -1,4 +1,5 @@
 Problem: I prefer to browse using Firefox, but in a corporate environment, many intranet sites fail to render properly (or perform passthrough authentication) unless using IE/Edge. Having to copy and paste URLs into the appropriate browser is awkward.
+
 Several years ago, to resolve the above problem, I wrote a simple C# Winforms tool that I named URLHandler. It registered itself in Windows as the default handler for http/https links, and then displayed a small window whenever such a link was clicked (e.g. in an Outlook e-mail).
 The original URLHandler had several configuration options - a whitelist of domains/URL regexes to always open in Edge, configurable between Firefox and Chrome, and so on.
 
