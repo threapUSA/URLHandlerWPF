@@ -8,6 +8,7 @@
     {
         #region Public Methods
 
+
         public static bool ActivateCenteredToMouse(this Window window)
         {
             ComputeTopLeft(ref window);
