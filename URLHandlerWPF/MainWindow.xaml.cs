@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ExtensionMethods;
+//using ExtensionMethods;
 using System.Diagnostics;
 using System.Windows.Media.Animation;
 using System.Security.Principal;
@@ -32,11 +32,32 @@ namespace URLHandlerWPF
         public MainWindow()
         {
             InitializeComponent();
+            this.Visibility = Visibility.Visible;
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            CenterWindowOnMousePosition();
+        }
+
+        private void CenterWindowOnMousePosition()
+        {
+            var transform = PresentationSource.FromVisual(this).CompositionTarget.TransformFromDevice;
+            var mouse = transform.Transform(GetMousePosition());
+            Left = mouse.X - (int)(ActualWidth / 2.0F);
+            Top = mouse.Y - (int)(ActualHeight / 2.0F);
+        }
+
+        public System.Windows.Point GetMousePosition()
+        {
+            System.Drawing.Point point = System.Windows.Forms.Control.MousePosition;
+            return new System.Windows.Point(point.X, point.Y);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            this.ActivateCenteredToMouse();
+            //this.ActivateCenteredToMouse();
             this.Opacity = 1.0F;
             
             foreach (string _arg in Environment.GetCommandLineArgs())
