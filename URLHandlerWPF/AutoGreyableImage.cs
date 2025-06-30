@@ -8,6 +8,9 @@ namespace URLHandlerWPF
 {
     public class AutoGreyableImage : Image
     {
+        public static bool isFocussed = false;
+        public static bool isEnabled = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AutoGreyableImage"/> class.
         /// </summary>
@@ -34,7 +37,7 @@ namespace URLHandlerWPF
         /// Called when [auto grey scale image source property changed].
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <param name="args">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
+        /// <param name="ars">The <see cref="System.Windows.DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
         protected static void OnAutoGreyScaleImageSourcePropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs ars)
         {
             AutoGreyableImage image = GetImageWithSource(source);
@@ -52,7 +55,8 @@ namespace URLHandlerWPF
             AutoGreyableImage image = GetImageWithSource(source);
             if (image != null)
             {
-                var isEnabled = Convert.ToBoolean(args.NewValue);
+                isEnabled = Convert.ToBoolean(args.NewValue);
+                
                 ApplyGreyScaleImage(image, isEnabled);
             }
         }

@@ -1,0 +1,253 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:URLHandlerWPF"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Name="mainWindow" x:Class="URLHandlerWPF.WindowSetup"
+        mc:Ignorable="d"
+        Title="URLHandler Options" Height="512.644" Width="874.901" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" ResizeMode="NoResize" Closed="Window_Closed" FontSize="16" WindowStyle="None" Closing="Window_Closing" BorderThickness="1,1,1,1" BorderBrush="{Binding Source={x:Static SystemParameters.WindowGlassBrush}}" TextOptions.TextFormattingMode="Display">
+
+    <Window.Resources>
+        <System:String x:Key="RestartButtonText">Click here to register as browser</System:String>
+        <SolidColorBrush x:Key="CheckFillBrush" Color="Pink" />
+        <SolidColorBrush x:Key="CheckFillBrushTint" Color="Salmon" />
+        <ImageSource x:Key="butimgsrc">FF.png</ImageSource>
+
+        <Style TargetType="{x:Type Button}" x:Key="WindowButtonStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ButtonBase}">
+                        <Border
+                            x:Name="Chrome"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Margin="0"
+                            Background="{TemplateBinding Background}"
+                            SnapsToDevicePixels="False">
+                            <ContentPresenter
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Content="{TemplateBinding Content}"
+                                ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="#11000000"/>
+            <Setter Property="FontFamily" Value="Webdings"/>
+            <Setter Property="FontSize" Value="13.333" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Margin" Value="2,2,3,2"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Red" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="{x:Type CheckBox}"
+           x:Key="SwitchCheckBoxStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0"
+                              Width="45"
+                              Height="20">
+                                <!--Hitbox-->
+                                <Rectangle Fill="Transparent" />
+
+                                <!--Toggle-Switch Outline-->
+                                <Border CornerRadius="9" 
+                                    BorderBrush="{TemplateBinding Foreground}"
+                                    BorderThickness="1.5"
+                                    x:Name="ToggleBorder">
+                                    <!--Dot in Toggle-Switch-->
+                                    <Ellipse Fill="{TemplateBinding Foreground}" 
+                                         Height="11" 
+                                         Width="11" 
+                                         HorizontalAlignment="Left"
+                                         Margin="4,0"
+                                         VerticalAlignment="Center"
+                                         x:Name="ToggleEllipse"/>
+                                </Border>
+                            </Grid>
+                            <ContentPresenter x:Name="content" Grid.Column="1"
+                                          Margin="10,0,0,0"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"/>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--Change colors and move dot to the right-->
+                            <Trigger Property="Tag" Value="Dark">
+                                <Setter TargetName="ToggleBorder"
+                                    Property="BorderBrush"
+                                    Value="#FFDDDDDD" />
+                                <Setter TargetName="ToggleEllipse"
+                                    Property="Fill"
+                                    Value="#FFDDDDDD" />
+                            </Trigger>
+                            <Trigger Property="Tag" Value="Light">
+                                <Setter TargetName="ToggleBorder"
+                                    Property="BorderBrush"
+                                    Value="#FFDDDDDD" />
+                                <Setter TargetName="ToggleEllipse"
+                                    Property="Fill"
+                                    Value="#FFDDDDDD" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ToggleEllipse"
+                                    Property="HorizontalAlignment"
+                                    Value="Right" />
+                                <Setter TargetName="ToggleBorder"
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource ToggleOn}" />
+                                <Setter TargetName="ToggleBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource ToggleOn}" />
+                                <Setter TargetName="content" Property="Content" Value="On"></Setter>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ToggleBorder"
+                                    Property="Opacity"
+                                    Value="0.9" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <Style TargetType="{x:Type RadioButton}" x:Key="FlatRBStyle">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Border Name="border" BorderThickness="1.5" BorderBrush="{TemplateBinding Background}" Background="{TemplateBinding Background}" CornerRadius="0">
+                            <StackPanel x:Name="stackpanel1" Orientation="Horizontal">
+                                <local:AutoGreyableImage x:Name="replaceimage" VerticalAlignment="Center" Source="{TemplateBinding Tag}" Margin="4,4,8,4" />
+                                <ContentControl x:Name="content" Content="{TemplateBinding Content}" Margin="1,12,4,1" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" Height="31" Width="121" />
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FFAAAAAA"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="content" Property="Foreground" Value="#FFCCCCCC"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="0"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF000000"/>
+                                <Setter Property="Opacity" Value="0.91" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter TargetName="border" Property="BorderThickness" Value="1"/>
+                                    <Setter TargetName="border" Property="Background" Value="#FF888888"/>
+                                    <Setter TargetName="content" Property="FontWeight" Value="SemiBold"/>
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button" x:Key="FlatButtonStyle">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Name="border" BorderThickness="1" BorderBrush="{TemplateBinding Background}" Background="{TemplateBinding Background}" CornerRadius="0">
+                            <StackPanel x:Name="uacs" Orientation="Horizontal">
+                                <Image x:Name="xShield" Source="{TemplateBinding Tag}" Margin="10,6,10,6" Width="24" Height="24" />
+                                <ContentControl x:Name="ccButton" Content="{TemplateBinding Content}" Margin="1,11,4,1" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" Height="31" />
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF999999"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FF999999"/>
+                                <Setter Property="Opacity" Value="0.91" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="label_Browser" Content="Primary Browser" HorizontalAlignment="Left" Margin="178,42,0,0" VerticalAlignment="Top" FontSize="17" Grid.ColumnSpan="2" FontFamily="Segoe UI Semibold" Height="33" Width="137"/>
+        <CheckBox x:Name="chkCloseDelay" Content="Off" HorizontalAlignment="Left" Margin="269,127,0,0" VerticalAlignment="Top" Style="{DynamicResource SwitchCheckBoxStyle}" Tag="Light" Grid.Column="1" RenderTransformOrigin="0.521,0.762" Background="#FFE24343" Height="23" Width="335"/>
+        <Label Name="labOptions" Content="Options" VerticalAlignment="Top" Foreground="White" Padding="20,25,10,10" Height="513" FontSize="20" Margin="0,0,80,0" Background="#FF444444" HorizontalAlignment="Left" Width="249">
+            <Label.RenderTransform>
+                <ScaleTransform CenterX="100" CenterY="255" />
+            </Label.RenderTransform>
+            <Label.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Duration="0:0:0.1" From="0.9" To="1.0" 
+                                                            Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" />
+                            <DoubleAnimation Duration="0:0:0.1" From="0.95" To="1.0" 
+                                                            Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)" />
+                        </Storyboard>
+                    </BeginStoryboard>
+
+                </EventTrigger>
+            </Label.Triggers>
+        </Label>
+        <TextBlock x:Name="labVer" Text="version 1.0" HorizontalAlignment="Left" Margin="20,457,0,0" Foreground="White" VerticalAlignment="Top" FontSize="14" Height="56" Width="118" TextAlignment="Center"/>
+        <Label x:Name="labOtherOpts" Content="Other options" HorizontalAlignment="Left" Margin="238,42,0,0" VerticalAlignment="Top" Grid.Column="1" FontFamily="Segoe UI Semibold" FontSize="17" Height="33" Width="117"/>
+        <Label x:Name="labExpOO" Content="Close automatically after a short delay" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" Grid.Column="1" HorizontalAlignment="Left" Margin="263,88,0,0" VerticalAlignment="Top" Height="34" Width="323" FontSize="15"/>
+        <Canvas x:Name="canvasCTT" HorizontalAlignment="Left" Height="165" Margin="178,348,0,0" VerticalAlignment="Top" Width="658" Grid.ColumnSpan="2" Visibility="Visible">
+            <Label x:Name="labCTT" Content="Current target address" HorizontalAlignment="Left" VerticalAlignment="Top" Width="204" FontFamily="Segoe UI Semibold" FontSize="17" Canvas.Top="6"/>
+            <Label x:Name="labExpLink" Content="This is the link you've clicked on. It's highlighted if it matches an Edge filter (see above)." Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="625" Canvas.Left="10" Canvas.Top="44" FontSize="15"/>
+            <RichTextBox x:Name="richTextBox1" Height="44" Canvas.Left="26" Canvas.Top="83" Width="609" FontFamily="Segoe UI Semilight" Background="Transparent" BorderThickness="0" TextChanged="richTextBox1_TextChanged" GotFocus="richTextBox1_GotFocus" AcceptsReturn="False" AllowDrop="False" IsUndoEnabled="True" TextOptions.TextFormattingMode="Display" Cursor="Arrow">
+                <FlowDocument>
+                    <Paragraph>
+                        <Run Text=""/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+            <Button x:Name="butCert" Content="Get Cert" Canvas.Left="546" Canvas.Top="69" Width="71" Click="butCert_Click" Height="58" Visibility="Hidden"/>
+
+
+        </Canvas>
+        <Canvas x:Name="canvasRegisterBrowser" HorizontalAlignment="Left" Height="178" Margin="167,326,0,0" VerticalAlignment="Top" Width="678" Grid.ColumnSpan="2" Visibility="Hidden">
+            <Label x:Name="labRegister" Content="Register this app as a browser" Canvas.Left="10" Canvas.Top="10" FontFamily="Segoe UI Semibold" FontSize="17"/>
+            <Label x:Name="labexpRegister" Content="Before you can use this app to open links, you'll need to register it&#10;as your default browser." Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" Canvas.Left="21" Canvas.Top="43" FontFamily="Segoe UI" FontSize="16" Width="512"/>
+            <Button x:Name="butRegisterRestart" Content="{DynamicResource RestartButtonText}" Background="#FF555555" Foreground="White" Canvas.Left="21" Canvas.Top="112" Width="329" Height="48" Style="{DynamicResource FlatButtonStyle}" Click="butRegisterRestart_Click"/>
+        </Canvas>
+        <TextBlock HorizontalAlignment="Left" Margin="197,88,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="92" Width="251" Grid.ColumnSpan="2" Foreground="{Binding Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:WindowSetup}}}" FontSize="15"><Run Text="Choose which browser to show"/><Run Text=" on the left button."/><LineBreak/><Run Text="If a browser can't be located on this system, it is grayed out."/></TextBlock>
+        <Button x:Name="chromeClose" Content="r" Grid.Column="1" HorizontalAlignment="Center" Margin="573,0,0,0" VerticalAlignment="Top" Width="52" Style="{DynamicResource WindowButtonStyle}" Height="34" FontSize="24" IsCancel="True" RenderTransformOrigin="0.843,0.029" Click="chromeClose_Click" />
+        <Label Content="" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="807" MouseDown="Label_MouseDown"/>
+        <RadioButton x:Name="butFF" Content="Mozilla Firefox" HorizontalAlignment="Left" Margin="197,196,0,0" VerticalAlignment="Top" Background="#FF555555" Foreground="White" Style="{DynamicResource FlatRBStyle}" Height="47" Width="192" Grid.ColumnSpan="2" Tag="pack://application:,,,/Resources/FF.png" Click="butFF_Click"/>
+        <RadioButton x:Name="butGC" Content="Google Chrome" HorizontalAlignment="Left" Margin="197,261,0,0" VerticalAlignment="Top" Width="192" Height="47" Background="#FF555555" Foreground="White" Padding="2,1,1,1" Style="{DynamicResource FlatRBStyle}" Grid.ColumnSpan="2" Tag="pack://application:,,,/Resources/FF.png" Click="butFF_Click"/>
+        <Label x:Name="labExpFilters" Content="Default to Edge for links that match these lines:" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" Grid.Column="1" HorizontalAlignment="Left" Margin="263,191,0,0" VerticalAlignment="Top" Height="34" Width="323" FontSize="15"/>
+        <TextBox x:Name="tbURLs" Grid.Column="1" HorizontalAlignment="Left" Height="113" Margin="269,235,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="317" AcceptsReturn="True" BorderThickness="2,0" Padding="2,0" TextChanged="tbURLs_TextChanged" VerticalScrollBarVisibility="Auto"/>
+    </Grid>
+</Window>

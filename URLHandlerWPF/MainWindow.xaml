@@ -5,45 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:URLHandlerWPF"
         mc:Ignorable="d"
-        Title="URLHandlerWPF" Height="104.451" Width="156.021" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" Topmost="True" Loaded="Window_Loaded" Closing="Window_Closing" Opacity="0.9" ShowInTaskbar="False" Visibility="Hidden">
+        Title="URLHandlerWPF" UseLayoutRounding="True" Height="104.451" Width="156.021" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" Topmost="True" Loaded="Window_Loaded" Closing="Window_Closing" Opacity="0.0" ShowInTaskbar="False" KeyDown="Window_KeyDown">
     <Window.Background>
         <SolidColorBrush Opacity="1.0" Color="#01555555"/>
     </Window.Background>
     <Window.Resources>
-        <Style x:Key="NoMouseOverButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="SnapsToDevicePixels" Value="true" />
-            <Setter Property="OverridesDefaultStyle" Value="true" />
-            <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="Border"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Background="{TemplateBinding Background}"   >
-                            <ContentPresenter Margin="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            RecognizesAccessKey="True" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Opacity">
-                        <Setter.Value>0.9</Setter.Value>
-                    </Setter>
-                    <Setter Property="RenderTransform">
-                        <Setter.Value>
-                            <ScaleTransform  ScaleX="1.2" ScaleY="1.2" />
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+               
     </Window.Resources>
     <Grid>
         <Button Name="FF" Width="60" Height="60" Content="" Foreground="White" Margin="10,10,86,10" RenderTransformOrigin="0.5,0.5" Style="{DynamicResource Trigger-Enlarge}" Click="FF_Click" PreviewMouseRightButtonDown="FF_PreviewMouseRightButtonDown">
@@ -51,10 +18,27 @@
             <Button.Template>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
-                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <local:AutoGreyableImage Source="FF.png" Opacity="0.8" Stretch="Fill" SnapsToDevicePixels="False">
+                        <ContentPresenter x:Name="iconcontent" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <local:AutoGreyableImage x:Name="iconimage" Source="{DynamicResource leftbuttonimage}" Opacity="0.8" Stretch="Fill" SnapsToDevicePixels="True">
                         </local:AutoGreyableImage>
                     </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsDefault" Value="True">
+                            <Setter Property="LayoutTransform" TargetName="iconcontent">
+                                <Setter.Value>
+                                    <RotateTransform Angle="20"></RotateTransform>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Effect" TargetName="iconcontent" >
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#9F9999FF" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="BorderBrush" Value="Red"></Setter>
+                            <Setter Property="BorderThickness" Value="2"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Button.Template>
         </Button>
@@ -63,23 +47,40 @@
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
                         <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <local:AutoGreyableImage Source="Edge2.png" Opacity="0.8" Stretch="Fill" SnapsToDevicePixels="False">
+                        <local:AutoGreyableImage x:Name="iconcontent" Source="Edge2.png" Opacity="0.8" Stretch="Fill" SnapsToDevicePixels="False" RenderTransformOrigin="0.5,0.5">
+                            <Image.Effect>
+                                <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="0"  />
+                            </Image.Effect>
+                            <Image.RenderTransform>
+                                <RotateTransform Angle="0"/>
+                            </Image.RenderTransform>
                         </local:AutoGreyableImage>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsDefault" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard Name="buttonpulse">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="iconcontent" Storyboard.TargetProperty="Opacity" To="0.3" Duration="0:0:0.8" AutoReverse="True" RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="buttonpulse"/>
+                            </Trigger.ExitActions>
+
+                            <Setter Property="Effect" TargetName="iconcontent" >
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#9F9999FF" ShadowDepth="0" Direction="0" BlurRadius="0"  />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="BorderBrush" Value="Red"></Setter>
+                            <Setter Property="BorderThickness" Value="2"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Button Name="Setup" Width="140" Height="60" Content="" Foreground="White" FontSize="12" Margin="15,15,9,0" RenderTransformOrigin="0.5,0.5" Style="{DynamicResource Trigger-Enlarge}" Click="Setup_Click" PreviewMouseRightButtonDown="FF_PreviewMouseRightButtonDown" Visibility="Hidden">
-            <Button.Template>
-                <ControlTemplate TargetType="{x:Type Button}">
-                    <StackPanel Orientation="Horizontal" Background="#88444444">
-                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <local:AutoGreyableImage x:Name="UACShield" Source="UAC-Shield.png" Margin="2,0,0,0" Opacity="0.8" Width="24" Height="24" Stretch="Fill" SnapsToDevicePixels="False">
-                        </local:AutoGreyableImage>
-                        <TextBlock x:Name="SetupInfo" Margin="5,20,0,00" FontSize="11" Width="100">Register as Browser</TextBlock>
-                    </StackPanel>
-                </ControlTemplate>
-            </Button.Template>
-        </Button>
+
     </Grid>
 </Window>

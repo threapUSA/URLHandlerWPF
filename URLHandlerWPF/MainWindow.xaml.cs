@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Windows.Media.Animation;
 using System.Security.Principal;
 using Microsoft.Win32;
+using System.IO;
 
 namespace URLHandlerWPF
 {
@@ -25,14 +26,53 @@ namespace URLHandlerWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        string _Firefoxpath = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-        public string sURL = "";
+        public static string _Firefoxpath = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+        public static string _Chromepath = @"C:\Program Files\Google\Chrome\Application\chrome.exe";
+        public static string _Browserpath = "";
+
         public bool bNiceClose = false;
+        public System.Windows.Threading.DispatcherTimer dispatcherTimer;
+        public Window wSetup;
 
         public MainWindow()
         {
             InitializeComponent();
-            this.Visibility = Visibility.Visible;
+            Variables.lsURLPatterns = new List<string>();
+            Variables.bAutoClose = Properties.Settings.Default.AutoClose;
+
+            Variables.lsURLPatterns = Properties.Settings.Default.Filters.Cast<string>().ToList();
+                        
+            if (Properties.Settings.Default.Browser.Contains("firefox"))
+            {
+                _Browserpath = _Firefoxpath;  
+                //Application.Current.Resources["leftbuttonimage"] = System.Drawing.Icon.ExtractAssociatedIcon(_Firefoxpath);// new BitmapImage(new Uri(@"pack://application:,,,/FF.png"));
+            }
+            else
+            {
+                _Browserpath = _Chromepath;
+            }
+            if (IsFirefoxInstalled) { Variables.FFIcon = (ImageSource)getIconfromPath(_Firefoxpath); }
+            if (IsChromeInstalled) { Variables.GCIcon = (ImageSource)getIconfromPath(_Chromepath); }
+
+            Application.Current.Resources["leftbuttonimage"] = _Browserpath == _Firefoxpath ? Variables.FFIcon : Variables.GCIcon;
+            
+            FF.IsEnabled = File.Exists(_Browserpath);
+
+            this.Opacity = 0.9F;
+        }
+
+        public static object getIconfromPath(string browserpath)
+        {
+            var icons0 = IconInfo.LoadIconsFromBinary(browserpath, 0);
+
+            // get the jumbo icon
+            var iconId_256 = icons0.First(i => i.WithIcon(it => it.Size.Width == 256));
+            BitmapSource _is = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+            iconId_256.Handle,
+            Int32Rect.Empty,
+            BitmapSizeOptions.FromEmptyOptions());
+            icons0.ForEach(i => i.Dispose());
+            return (_is);
         }
 
         protected override void OnContentRendered(EventArgs e)
@@ -59,86 +99,41 @@ namespace URLHandlerWPF
         {
             //this.ActivateCenteredToMouse();
             this.Opacity = 1.0F;
-            
+            dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+
+            dispatcherTimer.Tick += dispatcherTimer_Tick;
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 4);
+
             foreach (string _arg in Environment.GetCommandLineArgs())
             {
                 if ((_arg.ToLower().StartsWith("http")) && (_arg.Length < 8192)) // 
                 {
-                    sURL = _arg;
+                    Variables.sURL = _arg;
                 }
             }
-            if (sURL.Length < 8)
+            if (Variables.sURL.Length < 8)
             {
-                FF.IsEnabled = false; IE.IsEnabled = false;
+                //FF.IsEnabled = false; IE.IsEnabled = false;
+                fShowSetup(true);
                 if (!IsElevated)
                 {
-                    Image MyContentImage = FindChild<Image>(Setup, "UACShield");
-                    MyContentImage.Visibility = Visibility.Hidden;
+                    // no url, and not elevated
                     
-                    Setup.Content = "Restart as Administrator\nto register as a browser";
                     this.Opacity = 1.0F;
                 }
-                Setup.Visibility = Visibility.Visible;
-                /*System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-                dispatcherTimer.Tick += dispatcherTimer_Tick;
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 2);
-                dispatcherTimer.Start();*/
+            } else
+            {
+                if (fCheckIfLinkIsOnWhitelist(Variables.sURL))
+                {
+                    Variables.bFavorEdge = true;
+                    IE.IsDefault = true;
+                }
             }
+            
+            if (Variables.bAutoClose) { dispatcherTimer.Start(); }
         }
 
-        public static T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
-        {
-            if (parent == null)
-            {
-                return null;
-            }
-
-            T foundChild = null;
-
-            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
-
-            for (int i = 0; i < childrenCount; i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                T childType = child as T;
-
-                if (childType == null)
-                {
-                    foundChild = FindChild<T>(child, childName);
-
-                    if (foundChild != null) break;
-                }
-                else
-                    if (!string.IsNullOrEmpty(childName))
-                {
-                    var frameworkElement = child as FrameworkElement;
-
-                    if (frameworkElement != null && frameworkElement.Name == childName)
-                    {
-                        foundChild = (T)child;
-                        break;
-                    }
-                    else
-                    {
-                        foundChild = FindChild<T>(child, childName);
-
-                        if (foundChild != null)
-                        {
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    foundChild = (T)child;
-                    break;
-                }
-            }
-
-            return foundChild;
-        }
-
-        static bool IsElevated
+        public static bool IsElevated
         {
             get
             {
@@ -150,17 +145,41 @@ namespace URLHandlerWPF
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             bNiceClose = true;
-            this.Close();
+            if (Variables.bFavorEdge)
+            {
+                IE_Click(null, null);
+            }
+            else
+            {
+                this.Close();
+            }
         }
 
+        public static bool fCheckIfLinkIsOnWhitelist(string sLink)
+        {
+            bool bReturn = false;
+            //if (Variables.lsURLPatterns.Any(x => sLink.ToLower().Contains(x.ToLower()))) { bReturn = true;  }
 
+            foreach (string sTmp in Variables.lsURLPatterns)
+            {
+                if (sLink.ToLower().Contains(sTmp.ToLower()))
+                {
+                    bReturn = true;
+                    
+                }
+            }
+            
+            return (bReturn);
+        }
+
+        
         private void FF_Click(object sender, RoutedEventArgs e)
         {
-            if (sURL.Length > 8)
+            if (Variables.sURL.Length > 8)
             {
                 Process process = new Process();
-                process.StartInfo.FileName = _Firefoxpath;
-                process.StartInfo.Arguments = sURL;// _URL;
+                process.StartInfo.FileName = _Browserpath;
+                process.StartInfo.Arguments = Variables.sURL;// _URL;
                 process.Start();
             }
             else
@@ -173,89 +192,40 @@ namespace URLHandlerWPF
 
         private void IE_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("microsoft-edge:" + sURL);
+            Process.Start("microsoft-edge:" + Variables.sURL);
             bNiceClose = true;
             this.Close();
         }
 
         private void FF_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            bNiceClose = true;
-            this.Close();
+            fShowSetup(false);
         }
 
-        private void Setup_Click(object sender, RoutedEventArgs e)
+        private void fShowSetup(bool bInitialConfig)
         {
-            string _exepath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
-            if (!IsElevated)
+            dispatcherTimer.Stop();
+            this.Topmost = false;
+            this.Visibility = Visibility.Hidden;
+            FF.InvalidateVisual();
+            wSetup = new WindowSetup();
+            if (false == wSetup.ShowDialog())
             {
-                var psi = new ProcessStartInfo();
-                psi.UseShellExecute = true;
-                psi.Verb = "runas";
-                psi.FileName = _exepath;
-                Process.Start(psi);
                 this.Close();
             }
             else
             {
-                try
-                {
-                    RegistryKey key = Registry.LocalMachine.OpenSubKey("Software", true);
+                FF.IsEnabled = File.Exists(_Browserpath);
+                this.Visibility = Visibility.Visible;
+                this.Topmost = true;
 
-                    key.CreateSubKey("URL-HandlerWPF");
-                    key = key.OpenSubKey("URL-HandlerWPF", true);
-
-                    key.CreateSubKey("Capabilities");
-                    key = key.OpenSubKey("Capabilities", true);
-
-                    key.SetValue("ApplicationDescription", "URL-HandlerWPF");
-                    key.SetValue("ApplicationIcon", _exepath + ",0");
-                    key.SetValue("ApplicationName", "URL-HandlerWPF");
-
-                    key.CreateSubKey("URLAssociations");
-                    key = key.OpenSubKey("URLAssociations", true);
-
-                    key.SetValue("ftp", "URL-HandlerURL");
-                    key.SetValue("http", "URL-HandlerURL");
-                    key.SetValue("https", "URL-HandlerURL");
-
-                    key = Registry.LocalMachine.OpenSubKey(@"Software\RegisteredApplications", true);
-                    key.SetValue("URL-Handler", @"Software\URL-Handler\Capabilities");
-
-                    key = Registry.LocalMachine.OpenSubKey(@"Software\Classes", true);
-                    key.CreateSubKey("URL-HandlerWPFURL");
-                    key = key.OpenSubKey("URL-HandlerWPFURL", true);
-
-                    key.SetValue("", "URL-HandlerWPF Document");
-                    key.SetValue("FriendlyTypeName", "URL-HandlerWPF http or https document");
-
-                    key.CreateSubKey("shell");
-                    key = key.OpenSubKey("shell", true);
-
-                    key.CreateSubKey("open");
-                    key = key.OpenSubKey("open", true);
-
-                    key.CreateSubKey("command");
-                    key = key.OpenSubKey("command", true);
-                    key.SetValue("", "\"" + _exepath + "\" \"%1\"");
-
-                    key.Close();
-                    // Now launch the "Default Apps" Settings page, to allow the user to choose this tool as their default browser
-                    var psi = new ProcessStartInfo();
-                    psi.UseShellExecute = true;
-                    psi.FileName = "ms-settings:defaultapps";
-                    Process.Start(psi);
-                    bNiceClose = true;
-                    this.Close();
-                }
-                catch 
-                {
-                }
+                Variables.bFavorEdge = IE.IsDefault = fCheckIfLinkIsOnWhitelist(Variables.sURL);
+                
+                if (Variables.bAutoClose) { dispatcherTimer.Start(); }
             }
         }
 
-
+        
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (bNiceClose)
@@ -265,6 +235,42 @@ namespace URLHandlerWPF
                 var anim = new DoubleAnimation(0, (Duration)TimeSpan.FromMilliseconds(500));
                 anim.Completed += (s, _) => this.Close();
                 this.BeginAnimation(UIElement.OpacityProperty, anim);
+            }
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch(e.Key)
+                {
+                case Key.D1: // 1
+                    FF_Click(null, null);
+                    break;
+                case Key.D2: // 2
+                    IE_Click(null, null);
+                    break;
+                case Key.Escape: // escape
+                    this.Close();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static bool IsChromeInstalled
+        {
+            get
+            {
+                string sGoogle = "\\Google\\Chrome\\Application\\chrome.exe";
+                return ((File.Exists(Environment.ExpandEnvironmentVariables("%ProgramW6432%") + sGoogle)) || (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + sGoogle)) || (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + sGoogle)));
+            }
+        }
+
+        public static bool IsFirefoxInstalled
+        {
+            get
+            {
+                string sFirefox = "\\Mozilla Firefox\\firefox.exe";
+                return ((File.Exists(Environment.ExpandEnvironmentVariables("%ProgramW6432%") + sFirefox)) || (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + sFirefox)));
             }
         }
     }
