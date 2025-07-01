@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:URLHandlerWPF"
         mc:Ignorable="d"
-        Title="URLHandlerWPF" UseLayoutRounding="True" Height="104.451" Width="156.021" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" Topmost="True" Loaded="Window_Loaded" Closing="Window_Closing" Opacity="0.0" ShowInTaskbar="False" KeyDown="Window_KeyDown">
+        Title="URLHandlerWPF" UseLayoutRounding="True" Height="104.451" Width="171.688" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="Manual" Topmost="True" Loaded="Window_Loaded" Closing="Window_Closing" Opacity="0.0" ShowInTaskbar="False" KeyDown="Window_KeyDown">
     <Window.Background>
         <SolidColorBrush Opacity="1.0" Color="#01555555"/>
     </Window.Background>
@@ -19,7 +19,7 @@
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
                         <ContentPresenter x:Name="iconcontent" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <local:AutoGreyableImage x:Name="iconimage" Source="{DynamicResource leftbuttonimage}" Opacity="0.8" Stretch="Fill" SnapsToDevicePixels="True">
+                        <local:AutoGreyableImage x:Name="iconimage" Source="{DynamicResource leftbuttonimage}" Opacity="0.8" Stretch="Fill" SnapsToDevicePixels="False">
                         </local:AutoGreyableImage>
                     </Grid>
 

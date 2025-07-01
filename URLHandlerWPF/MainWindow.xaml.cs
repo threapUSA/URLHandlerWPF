@@ -18,6 +18,7 @@ using System.Windows.Media.Animation;
 using System.Security.Principal;
 using Microsoft.Win32;
 using System.IO;
+using System.Windows.Media.Effects;
 
 namespace URLHandlerWPF
 {
@@ -31,6 +32,9 @@ namespace URLHandlerWPF
         public static string _Browserpath = "";
 
         public bool bNiceClose = false;
+        public bool bContainsNonANSI = false;
+        public int iNonANSIClicks = 2;
+
         public System.Windows.Threading.DispatcherTimer dispatcherTimer;
         public Window wSetup;
 
@@ -39,7 +43,7 @@ namespace URLHandlerWPF
             InitializeComponent();
             Variables.lsURLPatterns = new List<string>();
             Variables.bAutoClose = Properties.Settings.Default.AutoClose;
-
+            Variables.bWarnUnicode = Properties.Settings.Default.WarnUnicode;
             Variables.lsURLPatterns = Properties.Settings.Default.Filters.Cast<string>().ToList();
                         
             if (Properties.Settings.Default.Browser.Contains("firefox"))
@@ -128,9 +132,41 @@ namespace URLHandlerWPF
                     Variables.bFavorEdge = true;
                     IE.IsDefault = true;
                 }
+                // check whether the URL contains non-ASCII characters (e.g. unicode lookalikes) and do a yellow glow warning if so.
+                // The buttons will then require TWO clicks to activate; after the first click the glow changes to red ("last chance to reconsider!")
+                
+                if ((ContainsUnicodeCharacter(Variables.sURL)) && (Variables.bWarnUnicode))
+                {
+                    bContainsNonANSI = true;
+                    fSetGlow(new Color { A = 255, R = 255, G = 255, B = 0 });
+                    
+                }
             }
             
             if (Variables.bAutoClose) { dispatcherTimer.Start(); }
+        }
+
+        private void fSetGlow(Color color)
+        {
+            UIElement uie = FF;
+
+            uie.Effect =
+                new DropShadowEffect
+                {
+                    Color = color,
+                    BlurRadius = 20,
+                    ShadowDepth = 0,
+                    Opacity = color.A / 255.0
+                };
+            uie = IE;
+            uie.Effect =
+                new DropShadowEffect
+                {
+                    Color = color,
+                    BlurRadius = 20,
+                    ShadowDepth = 0,
+                    Opacity = color.A / 255.0
+                };
         }
 
         public static bool IsElevated
@@ -155,6 +191,13 @@ namespace URLHandlerWPF
             }
         }
 
+        public bool ContainsUnicodeCharacter(string input)
+        {
+            const int MaxAnsiCode = 127;
+
+            return input.Any(c => c > MaxAnsiCode);
+        }
+
         public static bool fCheckIfLinkIsOnWhitelist(string sLink)
         {
             bool bReturn = false;
@@ -175,23 +218,29 @@ namespace URLHandlerWPF
         
         private void FF_Click(object sender, RoutedEventArgs e)
         {
-            if (Variables.sURL.Length > 8)
+            if ((bContainsNonANSI) && (Variables.bWarnUnicode))
             {
-                Process process = new Process();
-                process.StartInfo.FileName = _Browserpath;
-                process.StartInfo.Arguments = Variables.sURL;// _URL;
-                process.Start();
+                if (iNonANSIClicks > 1)
+                { iNonANSIClicks--; fSetGlow(new Color { A = 255, R = 255, G = 0, B = 0 }); return; }
             }
-            else
-            {
-                
-            }
+
+            Process process = new Process();
+            process.StartInfo.FileName = _Browserpath;
+            process.StartInfo.Arguments = Variables.sURL;// _URL;
+            process.Start();
+            
             bNiceClose = true;
             this.Close();
         }
 
         private void IE_Click(object sender, RoutedEventArgs e)
         {
+            if ((bContainsNonANSI) && (Variables.bWarnUnicode))
+            {
+                if (iNonANSIClicks > 1)
+                { iNonANSIClicks--; fSetGlow(new Color { A = 255, R = 255, G = 0, B = 0 }); return; }
+            }
+
             Process.Start("microsoft-edge:" + Variables.sURL);
             bNiceClose = true;
             this.Close();
@@ -219,8 +268,24 @@ namespace URLHandlerWPF
                 this.Visibility = Visibility.Visible;
                 this.Topmost = true;
 
+                // If we come out of the Setup dialog with a filter that matches the URL, set Edge as the default button.
                 Variables.bFavorEdge = IE.IsDefault = fCheckIfLinkIsOnWhitelist(Variables.sURL);
                 
+                if (ContainsUnicodeCharacter(Variables.sURL))
+                {
+                    if (Variables.bWarnUnicode)
+                    {
+                        bContainsNonANSI = true;
+                        iNonANSIClicks = 2;
+                        fSetGlow(new Color { A = 255, R = 255, G = 255, B = 0 });
+                    }
+                    else
+                    {
+                        fSetGlow(new Color { A = 0, R = 255, G = 255, B = 0 });
+                    }
+                }
+
+                this.Focus();
                 if (Variables.bAutoClose) { dispatcherTimer.Start(); }
             }
         }

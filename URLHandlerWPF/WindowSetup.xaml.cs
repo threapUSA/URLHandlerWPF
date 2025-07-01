@@ -15,10 +15,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net;
 using System.Reflection;
 using System.Windows.Documents;
-
+using Windows.UI.ViewManagement;
 
 namespace URLHandlerWPF
 {
+    extern alias WindowsUIAlias;
     /// <summary>
     /// Interaction logic for WindowSetup.xaml
     /// </summary>
@@ -80,6 +81,8 @@ namespace URLHandlerWPF
             labVer.Text = String.Format("Version\n{0}",File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location).ToString("d"));
 
             chkCloseDelay.IsChecked = Properties.Settings.Default.AutoClose;
+            chkWarn.IsChecked = Variables.bWarnUnicode;
+
             foreach(string s in Properties.Settings.Default.Filters)
             {
                 tbURLs.AppendText(s+"\n");
@@ -101,25 +104,35 @@ namespace URLHandlerWPF
             {
                 if (!MainWindow.IsElevated)
                 {
-                    this.BorderThickness = new Thickness(10, 0, 0, 0);
-                    this.BorderBrush = SystemParameters.WindowGlassBrush;
+
+                    labOptionsBorder.BorderThickness = new Thickness(16, 0, 0, 0);
+                    labOptions.BorderThickness = new Thickness(0, 1, 0, 1);
+                    borderCRB.BorderBrush = labOptions.BorderBrush = labOptionsBorder.BorderBrush = SystemParameters.WindowGlassBrush;
                     butRegisterRestart.Tag = GetUACShield();
                     this.Resources["RestartButtonText"] = "Click here to restart as Administrator";
                 }
                 else
                 {
-                    this.BorderThickness = new Thickness(10, 0, 0, 0);
-                    this.BorderBrush = Brushes.Red;
+                    labOptionsBorder.BorderThickness = new Thickness(16, 0, 0, 0);
+                    labOptions.BorderThickness = new Thickness(0, 1, 0, 1);
+                    labOptions.BorderBrush = SystemParameters.WindowGlassBrush;
+                    
+                    borderCRB.BorderBrush = labOptionsBorder.BorderBrush = Brushes.Red;
+
+                    labexpRegister.Content = "Before you can use this application to open links, you need to register it\nas your default browser.";
                 }
 
                 canvasCTT.Visibility = Visibility.Hidden;
-                canvasRegisterBrowser.Visibility = Visibility.Visible;
+                borderCRB.Visibility = canvasRegisterBrowser.Visibility = Visibility.Visible;
 
-                tbURLs.IsEnabled = chkCloseDelay.IsEnabled = butFF.IsEnabled = butGC.IsEnabled = false;
+                chkWarn.IsEnabled = tbURLs.IsEnabled = chkCloseDelay.IsEnabled = butFF.IsEnabled = butGC.IsEnabled = false;
                 
             }
-            
-            Application.Current.Resources["ToggleOn"] = isLightTheme ? Brushes.LightGray : SystemParameters.WindowGlassBrush;
+            var color = new Windows.UI.ViewManagement.UISettings().GetColorValue(UIColorType.Accent);
+            Application.Current.Resources["AccentColor"] = new SolidColorBrush
+                (Color.FromArgb(color.A, color.R, color.G, color.B));
+
+            //Application.Current.Resources["ToggleOn"] = isLightTheme ? Brushes.LightGray : SystemParameters.WindowGlassBrush;
         }
 
         public string fCheckIfLinkIsOnWhitelist(string sLink, bool bTmp)
@@ -222,14 +235,14 @@ namespace URLHandlerWPF
             Color colLight = Color.FromArgb(0xff, 240, 240, 240);
             brLight = new SolidColorBrush(colLight);
             brLightDarker = new SolidColorBrush(Color.FromArgb(0xff, 200, 200, 200));
-            chkCloseDelay.Tag = SystemParameters.WindowGlassBrush;
-            this.Background = isLight ? new SolidColorBrush(colLight) : new SolidColorBrush(colDark);
+            chkWarn.Tag = chkCloseDelay.Tag = "Light";// SystemParameters.WindowGlassBrush;
+            gridborder.Background = isLight ? new SolidColorBrush(colLight) : new SolidColorBrush(colDark);
             tbURLs.Foreground = this.Foreground = isLight ? brDarkLighter : brLightDarker;
-            this.Resources["CheckFillBrush"] = isLight ? brLight : SystemParameters.WindowGlassBrush;
+            
             tbURLs.Background = isLight ? Brushes.Gainsboro : brDarkLighter;
-            //this.Resources["CheckFillBrushTint"] = isLight ? brLight : new Brush(Color.FromArgb(SystemParameters.WindowGlassBrush;
+
             //labExpLink.Foreground = labExpOO.Foreground = labExpPB.Foreground = isLight ? brDarkLighter : brLightDarker;
-            labRegister.Foreground = richTextBox1.Foreground = labCTT.Foreground = labOtherOpts.Foreground = chkCloseDelay.Foreground = label_Browser.Foreground = isLight ? brDark : brLight;
+            chkWarn.Foreground = labRegister.Foreground = richTextBox1.Foreground = labCTT.Foreground = labOtherOpts.Foreground = chkCloseDelay.Foreground = label_Browser.Foreground = isLight ? brDark : brLight;
 
             return isLight;
         }
@@ -364,6 +377,7 @@ namespace URLHandlerWPF
             
             // write out the value of bAutoClose
             Variables.bAutoClose = Properties.Settings.Default.AutoClose = (true ==chkCloseDelay.IsChecked);
+            Variables.bWarnUnicode = Properties.Settings.Default.WarnUnicode = (true == chkWarn.IsChecked);
 
             // write out the default left button browser setting.
             Properties.Settings.Default.Browser = (butFF.IsChecked == true) ? "firefox" : "chrome";

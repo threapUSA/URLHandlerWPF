@@ -10,6 +10,7 @@ namespace URLHandlerWPF
     {
         public static string sURL = "";
         public static bool bAutoClose = false;
+        public static bool bWarnUnicode = true;
         public static bool bFavorEdge = false;
         //public static bool isLightTheme = true;
         public static List<string> lsURLPatterns;
