@@ -1,18 +1,29 @@
-Problem: I prefer to browse using Firefox, but in a corporate environment, many intranet sites fail to render properly (or perform passthrough authentication) unless using IE (and now, Edge). Having to copy and paste URLs into the appropriate browser is awkward.
+Problem: I prefer to browse using Firefox, but in a corporate environment, many intranet sites fail to render properly (or perform passthrough authentication) unless using IE (and now, Edge). Having to copy and paste URLs from other applications such as Outlook into the appropriate browser is awkward.
 
 Several years ago, to resolve the above problem, I wrote a simple C# Winforms tool that I named URLHandler. It registered itself in Windows as the default handler for http/https links, and then displayed a small window whenever such a link was clicked (e.g. in an Outlook e-mail).
 The original URLHandler had several configuration options - a whitelist of domains/URL regexes to always open in Edge, configurable between Firefox and Chrome, and so on.
 
-Recently I realised that it's overkill and daunting for most users, and this URLHandlerWPF (yeah, I suck at naming things) is the result. Think of it as the earlier tool but reimplemented in WPF to drag it into the 21st Century. Click on a link in Outlook or whereever and this applet pops up under the mouse cursor with two instantly-recognizable icons for Firefox and Edge. Left-click one or the other to open the URL using that browser.
+Recently I realised that it's ~~overkill and daunting for most users~~ too complicated in its initial appearance for most users, a limitation of the Winforms framework, and this URLHandlerWPF (yeah, I suck at naming things) is the result. Think of it as the earlier tool but reimplemented in WPF to drag it into the 21st Century. Click on a link in Outlook or whereever and this applet pops up under the mouse cursor with just two instantly-recognizable icons for Firefox (or Chrome) and Edge. Left-click one or the other to open the URL using that browser.
 Right-click either icon to open a setup dialog.
+
 In the setup dialog, you can
-* choose which browser to use as the alternative to Edge - currently Firefox and Chrome are detected and offered if present.
-* choose to have the applet automatically close after a short period.
+* choose which browser to use as the alternative to Edge - currently Firefox and Chrome are detected and offered if present,
+* choose to have the applet automatically close ("timeout") after a short period,
+* choose to be warned if a URL includes non-ANSI characters,
 * enter a list of text patterns; if the clicked link contains any of these, then Edge will be used as the default browser for that link.
+* Register the application as a browser, so that it handles links.
+
+Any settings chosen here are saved automatically for the next time the application's used.
+(For those who need to know: Settings are saved to the user's appdata-local folder as a .config file.)
 
 If Edge is the default browser - see above - the applet will pulse the Edge icon to show this.
 And if the applet is configured to automatically close, Edge will be used to open the link without further interaction.
+Hotkeys - press 1 to use the leftmost browser (i.e. Firefox or Chrome), press 2 to use Edge, press Return to select the default if it's set, and press Escape to exit without opening the link.
 
+New feature: If the clicked link contains non-ANSI characters and the appropriate Setup option has been set, both icons will be outlined in a yellow warning glow; clicking once will change this to a RED glow ("last chance!"), and clicking a second time will open the link. This is intended to protect against lookalike glyphs that might be intended to confuse.
+
+Version History Highlights:
+version 2025.182: implemented new version numbering scheme (year.dayofyear *.hour* ); now displays explanation if it's run from the location from where it's already been installed & registered. Refactored code. Cleaned up the Setup dialog layout, correctly implementing the Grid container.
 version 063025: finished implementing Edge whitelisting, with highlighting of the clicked URL in the setup dialog to show when a match has been made. Animated the Edge icon when it's the default.
 version 062725: fully supports Dark/Light mode
 
