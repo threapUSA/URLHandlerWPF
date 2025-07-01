@@ -20,7 +20,7 @@
                             x:Name="Chrome"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             Margin="0"
-                            CornerRadius="0,20,0,0"
+                            CornerRadius="0,15,0,0"
                             Background="{TemplateBinding Background}"
                             SnapsToDevicePixels="False">
                             <ContentPresenter
@@ -213,12 +213,13 @@
         </Grid.ColumnDefinitions>
 
         <Border x:Name="gridborder"  CornerRadius="15" Padding="0" Background="White" BorderThickness="1,1,1,1" Grid.ColumnSpan="3" BorderBrush="{Binding Source={x:Static SystemParameters.WindowGlassBrush}}"/>
-        <Border x:Name="labOptionsBorder" Margin="0,-1,0,-1"
+        <Border x:Name="labOptionsBorder" Margin="0,-1,0,0"
                 Grid.Column="0"
-            Background="Transparent"
-            BorderBrush="#FF444444"
-               BorderThickness="7,0,0,0"
-            CornerRadius="15,00,0,15">
+            Background="#FF444444"
+
+            BorderBrush="{Binding Source={x:Static SystemParameters.WindowGlassBrush}}"
+               BorderThickness="1,2,0,1"
+            CornerRadius="13,0,0,13">
             <Border.RenderTransform>
                 <ScaleTransform CenterX="100" CenterY="255" />
             </Border.RenderTransform>
@@ -236,9 +237,9 @@
 
                 </EventTrigger>
             </Border.Triggers>
-            <Label Name="labOptions"  Grid.Column="0" Grid.ColumnSpan="1" Content="Options" Margin="0,1,0,0" VerticalAlignment="Top" Foreground="White" Padding="20,25,10,10" Height="599" FontSize="20" Background="#FF444444" HorizontalAlignment="Left" Width="173">
+            <Label Name="labOptions"  Grid.Column="0" Grid.ColumnSpan="1" Content="Options" Margin="12,1,0,0" VerticalAlignment="Top" Foreground="White" Padding="5,25,10,10" Height="600" FontSize="20" Background="#FF444444" HorizontalAlignment="Left" Width="173">
                 <Label.RenderTransform>
-                    <ScaleTransform CenterX="100" CenterY="255" />
+                    <ScaleTransform CenterX="100" CenterY="300" />
                 </Label.RenderTransform>
                 <Label.Triggers>
                     <EventTrigger RoutedEvent="Loaded">
@@ -256,9 +257,9 @@
                 </Label.Triggers>
             </Label>
         </Border>
-        
-        
-        <TextBlock x:Name="labVer" Text="version 1.0" HorizontalAlignment="Left" Margin="20,530,0,0" Foreground="White" VerticalAlignment="Top" Grid.Column="0" FontSize="14" Height="56" Width="118" TextAlignment="Center"/>
+
+
+        <TextBlock x:Name="labVer" Text="version 1.0" HorizontalAlignment="Left" Margin="27,530,0,0" Foreground="White" VerticalAlignment="Top" Grid.Column="0" FontSize="14" Height="56" Width="118" TextAlignment="Center"/>
 
         <Label x:Name="label_Browser" Content="Primary Browser" HorizontalAlignment="Left" Margin="20,42,0,0" VerticalAlignment="Top" FontSize="17" Grid.Column="1" Grid.ColumnSpan="1" FontFamily="Segoe UI Semibold" Height="33" Width="137"/>
         <RadioButton x:Name="butFF" Content="Mozilla Firefox" HorizontalAlignment="Left" Margin="38,196,0,0" VerticalAlignment="Top" Background="#FF555555" Foreground="White" Style="{DynamicResource FlatRBStyle}" Height="47" Width="192" Grid.Column="1" Tag="pack://application:,,,/Resources/FF.png" Click="butFF_Click"/>
@@ -267,7 +268,7 @@
         <Label x:Name="labOtherOpts" Content="Other options" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Grid.Column="3" FontFamily="Segoe UI Semibold" FontSize="17" Height="33" Width="117"/>
         <Label x:Name="labExpOO" Content="Close automatically after a short delay" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" Grid.Column="3" HorizontalAlignment="Left" Margin="20,88,0,0" VerticalAlignment="Top" Height="34" Width="323" FontSize="15"/>
         <CheckBox x:Name="chkCloseDelay" Content="Off" HorizontalAlignment="Left" Margin="30,127,0,0" VerticalAlignment="Top" Style="{DynamicResource SwitchCheckBoxStyle}" Tag="Light" Grid.Column="3" RenderTransformOrigin="0.521,0.762" Background="#FFE24343" Height="23" Width="311"/>
-        <Canvas x:Name="canvasCTT" HorizontalAlignment="Left" Height="165" Margin="10,415,0,-1" VerticalAlignment="Top" Width="658" Grid.Column="1" Grid.ColumnSpan="2" Visibility="Visible">
+        <Canvas x:Name="canvasCTT" HorizontalAlignment="Left" Height="139" Margin="10,441,0,0" VerticalAlignment="Top" Width="658" Grid.Column="1" Grid.ColumnSpan="2" Visibility="Visible">
             <Label x:Name="labCTT" Content="Current target address" HorizontalAlignment="Left" VerticalAlignment="Top" Width="204" FontFamily="Segoe UI Semibold" FontSize="17" Canvas.Top="6"/>
             <Label x:Name="labExpLink" Content="This is the link you've clicked on. It's highlighted if it matches an Edge filter (see above)." Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="625" Canvas.Left="10" Canvas.Top="44" FontSize="15"/>
             <RichTextBox x:Name="richTextBox1" Height="44" Canvas.Left="26" Canvas.Top="83" Width="609" FontFamily="Segoe UI Semilight" Background="Transparent" BorderThickness="0" TextChanged="richTextBox1_TextChanged" GotFocus="richTextBox1_GotFocus" AcceptsReturn="False" AllowDrop="False" IsUndoEnabled="True" TextOptions.TextFormattingMode="Display" Cursor="Arrow">
@@ -281,11 +282,11 @@
 
         </Canvas>
         <Border x:Name="borderCRB" Grid.Column="1" Grid.ColumnSpan="2" BorderBrush="Transparent" BorderThickness="2,1,1,1" Margin="10,419,15,14" Visibility="Hidden">
-        <Canvas x:Name="canvasRegisterBrowser" HorizontalAlignment="Left" Height="178" Margin="0,0,0,0" VerticalAlignment="Top" Width="678" Visibility="Visible">
-            <Label x:Name="labRegister" Content="Register this application as a browser" Canvas.Left="10" Canvas.Top="0" FontFamily="Segoe UI Semibold" FontSize="17"/>
-            <Label x:Name="labexpRegister" Content="Before you can use this application to open links, you'll need to register it&#10;as your default browser. This has to be done with Admin rights." Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" Canvas.Left="21" Canvas.Top="38" FontFamily="Segoe UI" FontSize="16" Width="607"/>
-            <Button x:Name="butRegisterRestart" Content="{DynamicResource RestartButtonText}" Background="#FF555555" Foreground="White" Canvas.Left="21" Canvas.Top="107" Width="329" Height="48" Style="{DynamicResource FlatButtonStyle}" Click="butRegisterRestart_Click"/>
-        </Canvas>
+            <Canvas x:Name="canvasRegisterBrowser" HorizontalAlignment="Left" Height="178" Margin="0,0,0,0" VerticalAlignment="Top" Width="678" Visibility="Visible">
+                <Label x:Name="labRegister" Content="Register this application as a browser" Canvas.Left="10" Canvas.Top="0" FontFamily="Segoe UI Semibold" FontSize="17"/>
+                <Label x:Name="labexpRegister" Content="Before you can use this application to open links, you'll need to register it&#10;as your default browser. This has to be done with Admin rights." Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" Canvas.Left="21" Canvas.Top="38" FontFamily="Segoe UI" FontSize="16" Width="607"/>
+                <Button x:Name="butRegisterRestart" Content="{DynamicResource RestartButtonText}" Background="#FF555555" Foreground="White" Canvas.Left="21" Canvas.Top="107" Width="329" Height="48" Style="{DynamicResource FlatButtonStyle}" Click="butRegisterRestart_Click"/>
+            </Canvas>
         </Border>
         <TextBlock x:Name="tbExplainPB"  HorizontalAlignment="Left" Margin="20,88,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="92" Width="251" Grid.Column="1" Foreground="{Binding Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:WindowSetup}}}" FontSize="15"><Run Text="Choose which browser to show"/><Run Text=" on the left button."/><LineBreak/><Run Text="If a browser can't be located on this system, it is grayed out."/></TextBlock>
         <Button x:Name="chromeClose" Content="r" Grid.Column="2"  HorizontalAlignment="Center" Margin="340,0,0,0" VerticalAlignment="Top" Width="52" Style="{DynamicResource WindowButtonStyle}" Height="36" FontSize="24" IsCancel="True" RenderTransformOrigin="0.843,0.029" Click="chromeClose_Click" />

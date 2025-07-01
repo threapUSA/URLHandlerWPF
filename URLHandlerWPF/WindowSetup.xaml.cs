@@ -69,6 +69,7 @@ namespace URLHandlerWPF
         public WindowSetup()
         {
             InitializeComponent();
+
             isLightTheme = SetColors(IsLightTheme());
             dtHighlightMatches.Tick += dtHighlightMatches_Tick;
             dtHighlightMatches.Interval = new TimeSpan(0, 0, 0, 0, 300);
@@ -77,8 +78,8 @@ namespace URLHandlerWPF
             BitmapImage x = new BitmapImage(new Uri(@"pack://application:,,,/FF.png"));
             butGC.Tag = Variables.GCIcon;// MainWindow.getIconfromPath(MainWindow._Chromepath);//new BitmapImage(new Uri(@"pack://application:,,,/Google_Chrome.png"));
             butGC.IsChecked = !(butFF.IsChecked = MainWindow._Browserpath.Contains("firefox"));
-
-            labVer.Text = String.Format("Version\n{0}",File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location).ToString("d"));
+            DateTime dt = File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location);
+            labVer.Text = String.Format("Version\n{0}.{1}.{2}", dt.ToString("yy"), dt.DayOfYear.ToString(),dt.ToString("%H"));
 
             chkCloseDelay.IsChecked = Properties.Settings.Default.AutoClose;
             chkWarn.IsChecked = Variables.bWarnUnicode;
@@ -102,24 +103,34 @@ namespace URLHandlerWPF
             }
             else
             {
-                if (!MainWindow.IsElevated)
+                if (fIsURLHandlerWPFAlreadyRegistered()) // already registered - user has merely run it directly, i.e. without passing a URL.
                 {
-
-                    labOptionsBorder.BorderThickness = new Thickness(16, 0, 0, 0);
-                    labOptions.BorderThickness = new Thickness(0, 1, 0, 1);
-                    borderCRB.BorderBrush = labOptions.BorderBrush = labOptionsBorder.BorderBrush = SystemParameters.WindowGlassBrush;
-                    butRegisterRestart.Tag = GetUACShield();
-                    this.Resources["RestartButtonText"] = "Click here to restart as Administrator";
+                    labRegister.Content = "This application doesn't do anything if run directly.";
+                    labexpRegister.Content = "This application allows you to choose between installed browsers (Firefox / Chrome,\nand Edge) when opening links from other applications.\n\nOnly run it directly when you want to install it.";
+                    borderCRB.BorderBrush = Brushes.Yellow;
+                    butRegisterRestart.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    labOptionsBorder.BorderThickness = new Thickness(16, 0, 0, 0);
-                    labOptions.BorderThickness = new Thickness(0, 1, 0, 1);
-                    labOptions.BorderBrush = SystemParameters.WindowGlassBrush;
-                    
-                    borderCRB.BorderBrush = labOptionsBorder.BorderBrush = Brushes.Red;
 
-                    labexpRegister.Content = "Before you can use this application to open links, you need to register it\nas your default browser.";
+                    if (!MainWindow.IsElevated)
+                    {
+                        labOptionsBorder.BorderThickness = new Thickness(14, 0, 0, 1);
+                        labOptions.BorderThickness = new Thickness(0, 1, 0, 1);
+                        borderCRB.BorderBrush = labOptions.BorderBrush = labOptionsBorder.BorderBrush = SystemParameters.WindowGlassBrush;
+                        butRegisterRestart.Tag = GetUACShield();
+                        this.Resources["RestartButtonText"] = "Click here to restart as Administrator";
+                    }
+                    else
+                    {
+                        labOptionsBorder.BorderThickness = new Thickness(14, 0, 0, 0);
+                        labOptions.BorderThickness = new Thickness(0, 1, 0, 1);
+                        labOptions.BorderBrush = SystemParameters.WindowGlassBrush;
+
+                        borderCRB.BorderBrush = labOptionsBorder.BorderBrush = Brushes.Red;
+
+                        labexpRegister.Content = "Before you can use this application to open links, you need to register it\nas your default browser.";
+                    }
                 }
 
                 canvasCTT.Visibility = Visibility.Hidden;
@@ -133,6 +144,65 @@ namespace URLHandlerWPF
                 (Color.FromArgb(color.A, color.R, color.G, color.B));
 
             //Application.Current.Resources["ToggleOn"] = isLightTheme ? Brushes.LightGray : SystemParameters.WindowGlassBrush;
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            // Detect when the theme changed
+            HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
+            source.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
+            {
+                const int WM_SETTINGCHANGE = 0x001A;
+                if (msg == WM_SETTINGCHANGE)
+                {
+                    if (wParam == IntPtr.Zero && Marshal.PtrToStringUni(lParam) == "ImmersiveColorSet")
+                    {
+                        if (IsLightTheme() != isLightTheme)
+                        {
+                            SetColors(IsLightTheme());
+                            isLightTheme = !isLightTheme;
+                        }
+
+                    }
+                }
+
+                return IntPtr.Zero;
+            });
+        }
+
+        public SolidColorBrush brDark { get; set; }
+        public SolidColorBrush brDarkLighter { get; set; }
+        public SolidColorBrush brLight { get; set; }
+        public SolidColorBrush brLightDarker { get; set; }
+
+        public bool SetColors(bool isLight)
+        {
+            Color colDark = Color.FromArgb(0xff, 0x22, 0x22, 0x22);
+            brDark = new SolidColorBrush(colDark);
+            brDarkLighter = new SolidColorBrush(Color.FromArgb(0xff, 32, 32, 32));
+            Color colLight = Color.FromArgb(0xff, 240, 240, 240);
+            brLight = new SolidColorBrush(colLight);
+            brLightDarker = new SolidColorBrush(Color.FromArgb(0xff, 200, 200, 200));
+            chkWarn.Tag = chkCloseDelay.Tag = "Light";// SystemParameters.WindowGlassBrush;
+            gridborder.Background = isLight ? new SolidColorBrush(colLight) : new SolidColorBrush(colDark);
+            tbURLs.Foreground = this.Foreground = isLight ? brDarkLighter : brLightDarker;
+
+            tbURLs.Background = isLight ? Brushes.Gainsboro : brDarkLighter;
+
+            //labExpLink.Foreground = labExpOO.Foreground = labExpPB.Foreground = isLight ? brDarkLighter : brLightDarker;
+            chkWarn.Foreground = labRegister.Foreground = richTextBox1.Foreground = labCTT.Foreground = labOtherOpts.Foreground = chkCloseDelay.Foreground = label_Browser.Foreground = isLight ? brDark : brLight;
+
+            return isLight;
+        }
+
+
+        private static bool IsLightTheme()
+        {
+            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            var value = key?.GetValue("AppsUseLightTheme");
+            return (value is int i && i > 0);
         }
 
         public string fCheckIfLinkIsOnWhitelist(string sLink, bool bTmp)
@@ -153,7 +223,7 @@ namespace URLHandlerWPF
         private void fTestAndUpdateURL()
         {
             string sTest = fCheckIfLinkIsOnWhitelist(Variables.sURL, true);
-            
+            richTextBox1.FontSize = (Variables.sURL.Length < 200) ? 16 : 12;
             richTextBox1.Document.Blocks.Clear();
 
             if (sTest.Length > 0)
@@ -196,64 +266,7 @@ namespace URLHandlerWPF
             fTestAndUpdateURL();
         }
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            // Detect when the theme changed
-            HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
-            source.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
-            {
-                const int WM_SETTINGCHANGE = 0x001A;
-                if (msg == WM_SETTINGCHANGE)
-                {
-                    if (wParam == IntPtr.Zero && Marshal.PtrToStringUni(lParam) == "ImmersiveColorSet")
-                    {
-                        if (IsLightTheme() != isLightTheme)
-                        {
-                            SetColors(IsLightTheme());
-                            isLightTheme = !isLightTheme;
-                        }
-                        
-                    }
-                }
-
-                return IntPtr.Zero;
-            });
-        }
-
-        public SolidColorBrush brDark { get; set; }
-        public SolidColorBrush brDarkLighter { get; set; }
-        public SolidColorBrush brLight { get; set; }
-        public SolidColorBrush brLightDarker { get; set; }
-
-        public bool SetColors(bool isLight)
-        {
-            Color colDark = Color.FromArgb(0xff, 0x22, 0x22, 0x22);
-            brDark = new SolidColorBrush(colDark);
-            brDarkLighter = new SolidColorBrush(Color.FromArgb(0xff, 32, 32, 32));
-            Color colLight = Color.FromArgb(0xff, 240, 240, 240);
-            brLight = new SolidColorBrush(colLight);
-            brLightDarker = new SolidColorBrush(Color.FromArgb(0xff, 200, 200, 200));
-            chkWarn.Tag = chkCloseDelay.Tag = "Light";// SystemParameters.WindowGlassBrush;
-            gridborder.Background = isLight ? new SolidColorBrush(colLight) : new SolidColorBrush(colDark);
-            tbURLs.Foreground = this.Foreground = isLight ? brDarkLighter : brLightDarker;
-            
-            tbURLs.Background = isLight ? Brushes.Gainsboro : brDarkLighter;
-
-            //labExpLink.Foreground = labExpOO.Foreground = labExpPB.Foreground = isLight ? brDarkLighter : brLightDarker;
-            chkWarn.Foreground = labRegister.Foreground = richTextBox1.Foreground = labCTT.Foreground = labOtherOpts.Foreground = chkCloseDelay.Foreground = label_Browser.Foreground = isLight ? brDark : brLight;
-
-            return isLight;
-        }
-
-
-        private static bool IsLightTheme()
-        {
-            var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            var value = key?.GetValue("AppsUseLightTheme");
-            return (value is int i && i > 0);
-        }
+        
 
         private BitmapSource GetUACShield()
         {
@@ -363,6 +376,36 @@ namespace URLHandlerWPF
             }
 
             butRegisterRestart.Tag = null;
+        }
+
+        private bool fIsURLHandlerWPFAlreadyRegistered()
+        {
+            bool bReturn = false;
+            try
+            {
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Classes\\URL-HandlerWPFURL\\shell\\open\\command"))
+                {
+                    if (key != null)
+                    {
+                        Object o = key.GetValue("");
+                        if (o != null)
+                        {
+                            string sPath = o.ToString().Split('\"')[1];
+                            
+                            // Now to test whether this .EXE is the same .EXE referenced in the Registry - i.e., is registered to handle URLs.
+                            if (string.Equals(Path.GetFullPath(sPath),Path.GetFullPath(System.Reflection.Assembly.GetExecutingAssembly().Location), StringComparison.OrdinalIgnoreCase))
+                            {
+                                bReturn = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch 
+            {
+               
+            }
+            return bReturn;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
