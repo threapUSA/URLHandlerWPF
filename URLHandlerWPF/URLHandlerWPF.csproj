@@ -137,9 +137,6 @@
     <Resource Include="FF.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Edge.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Edge2.png" />
   </ItemGroup>
   <ItemGroup>
