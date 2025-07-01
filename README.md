@@ -8,6 +8,7 @@ Recently I realised that it's ~~overkill and daunting for most users~~ too compl
 __NOTE:__ I wrote this for my own purposes, primarily as a learning exercise in WPF, and it's the first project I've made public on GitHub. Please be forgiving of any n00b mistakes!
 
 __Requires:__ Windows 10 or 11 (tested on both).
+__Build Environment:__ Visual Studio 2019 on Windows 10 22H2; requires NuGet package __Microsoft.Windows.SDK.Contracts__ for some WinUI stuff (primarily, getting the Accent color).
 
 __To get started:__
 Copy the .exe to a suitable location (e.g. Downloads) and run it by double-clicking its icon.
